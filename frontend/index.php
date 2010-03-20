@@ -31,6 +31,21 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 <?php
 include 'config.php';
+
+$action=$_REQUEST['action'];
+
+if (isset ($action)) {
+	if (! empty ($action)) {
+		$datetime = $_REQUEST['datetime'];
+		$comment = $_REQUEST['comment'];
+		$maxspeed = $_REQUEST['maxspeed'];
+		$averagespeed = $_REQUEST['averagespeed'];
+		$duration = $_REQUEST['duration'];
+		$distance = $_REQUEST['distance'];
+		addWorkout();
+	}
+}
+
 ?>
 
 <body>
@@ -43,7 +58,35 @@ include 'config.php';
   
   <div id="content">
     <h2>Add workout</h2>
-    <p>Coming very soon ...</p>
+    <p><table width="100%"><tr>
+		<td width="5%">&nbsp;</td>
+		<td width="90%">
+
+<form action="index.php">
+<table width='100%' border='0' bgcolor="#DDDDDD" cellspacing="5">
+<tr>
+<td width="50%">Date and time<br/><input name="datetime" type="text" size="30" value=' <?php print (date("Y-m-d H:i:s")); ?> ' /></td>
+<td>Distance<br/><input name="distance" type="text" size="30" maxlength="50"/> km/h</td>
+</tr>
+<tr>
+<td>Comment<br/><input name="comment" type="text" size="50" maxlength="200" /></td>
+<td>Duration<br/><input name="duration" type="text" size="30" maxlength="50" /> (hh:mm:ss) </td>
+</tr>
+<tr>
+<td>Max Speed<br/><input name="maxspeed" type="test" size="30"/> km/h </td>
+<td>Average Speed<br/><input name="averagespeed" type="test" size="30"/> km/h </td>
+</tr>
+</table>
+<input type="hidden" name="action" value="addWorkout">
+<div align="right"><input type="submit" value="Save this workout"></div>
+</form>
+
+
+		</td>
+		<td width="5%">&nbsp;</td>
+		</tr></table></p>
+    <p>&nbsp;</p>
+
     <p>&nbsp;</p>
     
     <h2>Past workouts</h2>
@@ -85,3 +128,38 @@ for($x = 0 ; $x < mysql_num_rows($resultID) ; $x++){
 </div>
 </body>
 </html>
+
+
+<?php
+/*
+
+FUNCTIONS 
+
+*/
+
+function addWorkout() {
+		global $datetime;
+		global $comment;
+		global $maxspeed;
+		global $averagespeed;
+		global $duration;
+		global $distance;
+		
+		global $host;
+		global $user;
+		global $pass;
+		global $database;
+
+$linkID = mysql_connect($host, $user, $pass) or die("Could not connect to host.");
+mysql_select_db($database, $linkID) or die("Could not find database.");
+
+$query = "insert into cyclingstats (DATETIME, COMMENT, DISTANCE, DURATION, MAXSPEED, AVERAGESPEED ) values ('" . $datetime . "','" . $comment . "'," . $distance . ",'" . $duration . "'," . $maxspeed . "," . $averagespeed . ")";
+$resultID = mysql_query($query, $linkID) or die("Could not insert value (Workout).");
+mysql_close($linkID);
+}
+
+
+
+/*  END functions  */
+
+?>
