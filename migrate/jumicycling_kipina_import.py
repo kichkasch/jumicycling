@@ -16,12 +16,21 @@ for node in dom.childNodes:
    if node.localName == "traininglog":  # KIPINA root element
        for node1 in node.childNodes:
            if node1.localName == "workout": 
-               print node1.localName
-               for node2 in node1.childNodes:
+                print node1.localName
+                entry = {}
+                for node2 in node1.childNodes:
                     if node2.localName:
                         if node2.localName == "param":
-                            print ("\t%s (%s)" %(node2.getAttribute('name'), node2.getAttribute('type'), ))
+                            attName = node2.getAttribute('name')
+                            attType = node2.getAttribute('type')
                         else:
-                            print "\t" + node2.localName
-                        for node3 in node2.childNodes:
-                            print "\t\t" + node3.nodeValue
+                            if node2.localName == "datetime":
+                                attName = 'datetime'
+                                attType = 'datetime'
+                        if node2.childNodes:
+                            attValue = node2.childNodes[0].nodeValue
+                        else:
+                            attValue = None
+#                        print ("\t%s (%s) \t%s" %(attName, attType, unicode(attValue)))
+                        entry[attName] = attValue
+                print entry
