@@ -1,4 +1,25 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<?php
+/* !--
+JuMiCycling - Cycling Stats repository
+by Michael Pilgermann (kichkasch@gmx.de)
+Copyright (C) 2010 Michael Pilgermann
+ 
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+ 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+ 
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+?>
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>JuMiCycling</title>
@@ -7,6 +28,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
 <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
 </head>
+
+<?php
+include 'config.php';
+?>
+
 <body>
 <div id="wrap">
   <div id="header">
@@ -21,7 +47,37 @@
     <p>&nbsp;</p>
     
     <h2>Past workouts</h2>
-    <p>Table here soon...</p>
+    <p><table width="100%"><tr>
+		<td width="5%">&nbsp;</td>
+		<td width="90%">
+
+<table cellpadding="0" cellspacing="0" border="1" width="100%">
+<tr align="center"><th>Date</th><th>Comment</th><th>Distance</th><th>Duration</th><th>Max Speed</th><th>Average Speed</th></tr>
+
+
+<?php
+$linkID = mysql_connect($host, $user, $pass) or die("Could not connect to host.");
+mysql_select_db($database, $linkID) or die("Could not find database.");
+$query = "SELECT DATETIME, COMMENT, DISTANCE, DURATION, MAXSPEED, AVERAGESPEED from cyclingstats ORDER BY DATETIME DESC";
+$resultID = mysql_query($query, $linkID) or die("Data not found.");
+for($x = 0 ; $x < mysql_num_rows($resultID) ; $x++){
+ $row = mysql_fetch_assoc($resultID);
+ print("<tr align='left'>");
+ print("<td>" . $row['DATETIME'] . "</td>");
+ print('<td>' . $row['COMMENT'] . '</td>');
+ print('<td>' . $row['DISTANCE'] . '</td>');
+ print('<td>' . $row['DURATION'] . '</td>');
+ print('<td>' . $row['MAXSPEED'] . '</td>');
+ print('<td>' . $row['AVERAGESPEED'] . '</td>');
+ print('</tr>');
+}
+?>
+
+</table>		
+		
+		</td>
+		<td width="5%">&nbsp;</td>
+		</tr></table></p>
     <p>&nbsp;</p>
 
   </div>
