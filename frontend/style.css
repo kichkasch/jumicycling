@@ -3,6 +3,10 @@ padding: 0;
 margin: 0;
 } 
 
+th {
+background-color : #A0DCF8;
+}
+
 body {
 font: .8em "Lucida Sans", "Trebuchet MS", Verdana, Arial, Sans-Serif;
 background-image: url(image/optsbg.gif);

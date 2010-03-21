@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 3.2.2.1deb1
+-- version 3.2.5deb2
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 20, 2010 at 11:51 AM
--- Server version: 5.1.37
--- PHP Version: 5.2.10-2ubuntu6.4
+-- Generation Time: Mar 21, 2010 at 09:46 AM
+-- Server version: 5.1.44
+-- PHP Version: 5.3.1-5
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS `cyclingstats` (
   `workoutid` int(11) NOT NULL AUTO_INCREMENT,
   `datetime` datetime NOT NULL,
   `distance` double NOT NULL,
-  `duration` varchar(20) NOT NULL,
+  `duration` time NOT NULL,
   `maxspeed` double NOT NULL,
   `averagespeed` double NOT NULL,
   `comment` varchar(100) NOT NULL,
   PRIMARY KEY (`workoutid`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=53 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=57 ;

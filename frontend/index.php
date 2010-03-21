@@ -65,7 +65,7 @@ if (isset ($action)) {
 <form action="index.php">
 <table width='100%' border='0' bgcolor="#DDDDDD" cellspacing="5">
 <tr>
-<td width="50%">Date and time<br/><input name="datetime" type="text" size="30" value=' <?php print (date("Y-m-d H:i:s")); ?> ' /></td>
+<td width="50%">Date and time<br/><input name="datetime" type="text" size="30" value=' <?php print (date("Y-m-d")); ?> ' /></td>
 <td>Distance<br/><input name="distance" type="text" size="30" maxlength="50"/> km/h</td>
 </tr>
 <tr>
@@ -73,8 +73,8 @@ if (isset ($action)) {
 <td>Duration<br/><input name="duration" type="text" size="30" maxlength="50" /> (hh:mm:ss) </td>
 </tr>
 <tr>
-<td>Max Speed<br/><input name="maxspeed" type="test" size="30"/> km/h </td>
-<td>Average Speed<br/><input name="averagespeed" type="test" size="30"/> km/h </td>
+<td>Max Speed<br/><input name="maxspeed" type="test" size="30" value="0"/> km/h </td>
+<td>Average Speed<br/><input name="averagespeed" type="test" size="30" value="0"/> km/h </td>
 </tr>
 </table>
 <input type="hidden" name="action" value="addWorkout">
@@ -112,6 +112,20 @@ for($x = 0 ; $x < mysql_num_rows($resultID) ; $x++){
  print('<td>' . $row['DURATION'] . '</td>');
  print('<td>' . $row['MAXSPEED'] . '</td>');
  print('<td>' . $row['AVERAGESPEED'] . '</td>');
+ print('</tr>');
+}
+print ('<tr><th colspan="6" align="center">totals</th></tr>');
+$query = "SELECT COUNT(DATETIME) AS COUNT, SUM(DISTANCE) AS OVERALLDISTANCE, MAX(maxspeed) AS MAXSPEED, Sec_to_Time(Sum(Time_to_Sec(duration))) AS OVERALLTIME FROM cyclingstats";
+$resultID = mysql_query($query, $linkID) or die("Data not found.");
+for($x = 0 ; $x < mysql_num_rows($resultID) ; $x++){
+ $row = mysql_fetch_assoc($resultID);
+ print('<tr>');
+ print("<th align='center'>" . $row['COUNT'] . " workouts</th>");
+ print('<th></th>');
+ print("<th align='center'>" . $row['OVERALLDISTANCE'] . "</th>");
+ print("<th align='center'>" . $row['OVERALLTIME'] . "</th>");
+ print("<th align='center'>[" . $row['MAXSPEED'] . "]</th>");
+ print('<th></th>');
  print('</tr>');
 }
 ?>
