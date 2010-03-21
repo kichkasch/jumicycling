@@ -31,20 +31,31 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 <?php
 include 'config.php';
+include 'tools.php';
 
 $action=$_REQUEST['action'];
+$filter=hex2bin($_REQUEST['filter']);
 
 if (isset ($action)) {
 	if (! empty ($action)) {
-		$datetime = $_REQUEST['datetime'];
-		$comment = $_REQUEST['comment'];
-		$maxspeed = $_REQUEST['maxspeed'];
-		$averagespeed = $_REQUEST['averagespeed'];
-		$duration = $_REQUEST['duration'];
-		$distance = $_REQUEST['distance'];
-		addWorkout();
+		if (! strcmp($action, "addWorkout")) {
+			$datetime = $_REQUEST['datetime'];
+			$comment = $_REQUEST['comment'];
+			$maxspeed = $_REQUEST['maxspeed'];
+			$averagespeed = $_REQUEST['averagespeed'];
+			$duration = $_REQUEST['duration'];
+			$distance = $_REQUEST['distance'];
+			addWorkout();
+		} else if (! strcmp($action, "applyFilter")) {
+			$timerange = $_REQUEST['timerange'];
+			$commentpattern = $_REQUEST['commentpattern'];		
+			$filter = applyFilter();
+		}
 	}
 }
+
+$filter = checkFilter();
+/*print($filter);*/
 
 ?>
 
@@ -77,7 +88,8 @@ if (isset ($action)) {
 <td>Average Speed<br/><input name="averagespeed" type="test" size="30" value="0"/> km/h </td>
 </tr>
 </table>
-<input type="hidden" name="action" value="addWorkout">
+<input type="hidden" name="filter" value='<?php print(bin2hex($filter)); ?>'/>
+<input type="hidden" name="action" value="addWorkout"/>
 <div align="right"><input type="submit" value="Save this workout"></div>
 </form>
 
@@ -93,7 +105,7 @@ if (isset ($action)) {
     <p><table width="100%"><tr>
 		<td width="5%">&nbsp;</td>
 		<td width="90%">
-
+<p>
 <table cellpadding="0" cellspacing="0" border="1" width="100%">
 <tr align="center"><th>Date</th><th>Comment</th><th>Distance</th><th>Duration</th><th>Max Speed</th><th>Average Speed</th></tr>
 
@@ -101,7 +113,7 @@ if (isset ($action)) {
 <?php
 $linkID = mysql_connect($host, $user, $pass) or die("Could not connect to host.");
 mysql_select_db($database, $linkID) or die("Could not find database.");
-$query = "SELECT DATETIME, COMMENT, DISTANCE, DURATION, MAXSPEED, AVERAGESPEED from cyclingstats ORDER BY DATETIME DESC";
+$query = "SELECT DATETIME, COMMENT, DISTANCE, DURATION, MAXSPEED, AVERAGESPEED from cyclingstats " . $filter . " ORDER BY DATETIME DESC";
 $resultID = mysql_query($query, $linkID) or die("Data not found.");
 for($x = 0 ; $x < mysql_num_rows($resultID) ; $x++){
  $row = mysql_fetch_assoc($resultID);
@@ -115,7 +127,7 @@ for($x = 0 ; $x < mysql_num_rows($resultID) ; $x++){
  print('</tr>');
 }
 print ('<tr><th colspan="6" align="center">totals</th></tr>');
-$query = "SELECT COUNT(DATETIME) AS COUNT, SUM(DISTANCE) AS OVERALLDISTANCE, MAX(maxspeed) AS MAXSPEED, Sec_to_Time(Sum(Time_to_Sec(duration))) AS OVERALLTIME FROM cyclingstats";
+$query = "SELECT COUNT(DATETIME) AS COUNT, SUM(DISTANCE) AS OVERALLDISTANCE, MAX(maxspeed) AS MAXSPEED, Sec_to_Time(Sum(Time_to_Sec(duration))) AS OVERALLTIME FROM cyclingstats " . $filter;
 $resultID = mysql_query($query, $linkID) or die("Data not found.");
 for($x = 0 ; $x < mysql_num_rows($resultID) ; $x++){
  $row = mysql_fetch_assoc($resultID);
@@ -131,7 +143,23 @@ for($x = 0 ; $x < mysql_num_rows($resultID) ; $x++){
 ?>
 
 </table>		
-		
+</p>
+    <p>&nbsp;</p>
+<p>
+<h4>Filter</h4>
+<form action="index.php">
+<table width='100%' border='0' bgcolor="#DDDDDD" cellspacing="5">
+<tr>
+<td width="50%">Time range<br/><select name="timerange" size="1"><option value="1">-no filter-</option><option value="2">This Month</option><option value="3">Last Month</option><option value="5">This Year</option><option value="6">Last Year</option></select></td>
+<td>Search in Comment<br/><input name="commentpattern" type="text" size="30" maxlength="50"/></td>
+</tr>
+</table>
+<input type="hidden" name="filter" value='<?php print(bin2hex($filter)); ?>'/>
+<input type="hidden" name="action" value="applyFilter">
+<div align="right"><input type="submit" value="Apply this filter"></div>
+</form>
+
+</p>	
 		</td>
 		<td width="5%">&nbsp;</td>
 		</tr></table></p>
@@ -172,7 +200,54 @@ $resultID = mysql_query($query, $linkID) or die("Could not insert value (Workout
 mysql_close($linkID);
 }
 
+function assembleMonthFilter($backwards) {
+  return "DATETIME <= LAST_DAY(NOW()) - INTERVAL " . $backwards . " MONTH AND DATETIME >= LAST_DAY(NOW()) - INTERVAL " . ((int)$backwards + 1) . " MONTH + INTERVAL 1 DAY";
+}
 
+function assembleYearFilter($backwards) {
+  return "DATETIME >= DATE('" . date("Y") . "-01-01') - INTERVAL " . $backwards . " YEAR AND DATETIME < DATE('" . date("Y") . "-01-01') - INTERVAL " . ((int)$backwards) . " YEAR + INTERVAL 1 YEAR";
+}
+
+
+function applyFilter() {
+	global $timerange;
+	global $commentpattern;
+
+	$filter = " WHERE 1 ";
+	if (isset($timerange)) {
+		if (!empty($timerange)){
+			if (! strcmp($timerange, "2")) {
+				$filter = $filter . " AND " . assembleMonthFilter(0);
+			} else if (! strcmp($timerange, "3")) {
+				$filter = $filter . " AND " . assembleMonthFilter(1);
+			} else if (! strcmp($timerange, "5")) {
+				$filter = $filter . " AND " . assembleYearFilter(0);
+			} else if (! strcmp($timerange, "6")) {
+				$filter = $filter . " AND " . assembleYearFilter(1);
+			}
+		}
+	}
+	if (isset ($commentpattern)) {
+		if (!empty ($commentpattern)) {
+			$filter = $filter . " AND COMMENT LIKE '%" . $commentpattern . "%' ";
+		}
+	}	
+	
+return $filter;
+}
+
+
+function checkFilter() {
+	global $filter;
+   if (!isset ($filter)) {
+   	return " WHERE 1";
+   }
+	if (empty ($filter)) {
+		return " WHERE 1";
+	}
+
+return $filter;
+}
 
 /*  END functions  */
 
