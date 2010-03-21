@@ -4,3 +4,7 @@
 *.php~
 *.css~
 *.sql~
+*.dsc
+*source.changes
+*.kichkasch-ppa.upload
+*.tar.gz

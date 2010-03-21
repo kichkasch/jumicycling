@@ -1,0 +1,12 @@
+Source: jumicycling
+Section: web
+Priority: optional
+Maintainer: Michael Pilgermann <kichkasch@gmx.de>
+Build-Depends: cdbs (>= 0.4.49), debhelper (>= 7), quilt, patchutils (>= 0.2.25)
+Standards-Version: 3.8.3.0
+Homepage: http://github.com/kichkasch/jumicycling
+
+Package: jumicycling
+Architecture: all
+Depends: apache2, php5, php5-mysql, ${misc:Depends}
+Description: PHP / Mysql based cycling stats repository
