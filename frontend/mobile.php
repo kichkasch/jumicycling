@@ -21,7 +21,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 ?>
 <html>
 <head>
-        <title>JuMi Cycling Mobile</title>
+        <title>JuMiCycling Mobile</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
         <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
@@ -63,11 +63,17 @@ if (isset ($action)) {
 <?php
 $linkID = mysql_connect($host, $user, $pass) or die("Could not connect to host.");
 mysql_select_db($database, $linkID) or die("Could not find database.");
-$query = "SELECT CAST(`DATETIME` AS DATE) AS DATEONLY, COMMENT, DISTANCE, DURATION, MAXSPEED, AVERAGESPEED from cyclingstats ORDER BY DATETIME DESC LIMIT 0, 10";
+$query = "SELECT CAST(`DATETIME` AS DATE) AS DATEONLY, YEAR(DATETIME) AS YEAR, MONTH(DATETIME) AS MONTH, COMMENT, DISTANCE, DURATION, MAXSPEED, AVERAGESPEED from cyclingstats ORDER BY DATETIME DESC LIMIT 0, " . $mobWorkoutCount . " ";
 $resultID = mysql_query($query, $linkID) or die("Data not found.");
+$lastMonth = -1;
 for($x = 0 ; $x < mysql_num_rows($resultID) ; $x++){
  $row = mysql_fetch_assoc($resultID);
- print('<li><a href="#">' . $row['DISTANCE'] . ' km on ' . $row['DATEONLY'] . '</a></li>');
+ $thisMonth = intval($row['MONTH']);
+ if ($thisMonth != $lastMonth) { 
+  print('<li data-theme="e" style="text-align:center">' . $months[$thisMonth] . ' ' . $row['YEAR'] . '</li>');
+  $lastMonth = $thisMonth;
+ }
+ print('<li><a href="mobWorkoutDetails.php?waComment=' . bin2hex($row['COMMENT']) . '&waDate=' . $row['DATEONLY'] . '&waDistance=' . $row['DISTANCE'] . '&waDuration=' . $row['DURATION'] . '&waMaxSpeed=' . $row['MAXSPEED'] . '&waAvgSpeed=' . $row['AVERAGESPEED'] . '">' . $row['DISTANCE'] . ' km on ' . $row['DATEONLY'] . '</a></li>');
  }
 ?>
 </ul>

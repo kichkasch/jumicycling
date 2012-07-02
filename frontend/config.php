@@ -28,6 +28,9 @@ $host = "localhost";
 $user = "jumicycling";
 $pass = "cyclingpass";
 $database = "jumicycling";
+
+$months = array("","January","February","March","April","May","June","July","August","September","October","November","December");
+$mobWorkoutCount = 20;
  
 /* !--
  
